@@ -7,6 +7,32 @@ import { SongGenerationParams, SongOutput } from "../types";
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
 /**
+ * Creates a user-friendly error message based on the caught error object.
+ * @param error - The error object caught in the try-catch block.
+ * @param context - A string describing the action that failed (e.g., "generate song").
+ * @returns A user-friendly error string.
+ */
+function createApiErrorMessage(error: unknown, context: string): string {
+  let userMessage = `Failed to ${context}. An unexpected error occurred.`;
+  if (error instanceof Error) {
+    const errorMessage = error.message.toLowerCase();
+    if (errorMessage.includes("api key")) {
+      userMessage = "Authentication failed. Please ensure your API key is valid, active, and correctly configured.";
+    } else if (errorMessage.includes("429") || errorMessage.includes("quota")) {
+      userMessage = "You have exceeded your request limit for the day. Please try again later.";
+    } else if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
+      userMessage = "A network error occurred. Please check your internet connection and try again.";
+    } else if (errorMessage.includes("candidate was blocked") || errorMessage.includes("safety")) {
+      userMessage = "The request was blocked due to the content safety policy. Please modify the topic and try again.";
+    } else {
+      userMessage = `Failed to ${context}. The AI service encountered an issue. Please try again.`;
+    }
+  }
+  return userMessage;
+}
+
+
+/**
  * Generates song title, lyrics, and prompts for sound and image generation.
  * @param params - The parameters for song generation.
  * @returns A promise that resolves to a SongOutput object.
@@ -58,7 +84,7 @@ Do not include any markdown formatting (like \`\`\`json) in your response.`;
     return result as SongOutput;
   } catch (error) {
     console.error("Error generating song:", error);
-    throw new Error("Failed to generate song details from Gemini. Please check your API key and network connection.");
+    throw new Error(createApiErrorMessage(error, "generate song details"));
   }
 }
 
@@ -83,6 +109,6 @@ export async function generateRandomTopic(): Promise<string> {
     return response.text.trim().replace(/"/g, '');
   } catch (error) {
     console.error("Error generating random topic:", error);
-    throw new Error("Failed to generate a random topic from Gemini.");
+    throw new Error(createApiErrorMessage(error, "generate a random topic"));
   }
 }

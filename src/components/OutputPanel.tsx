@@ -68,13 +68,23 @@ const FormattedLyrics: React.FC<{ lyrics: string }> = ({ lyrics }) => {
     );
 };
 
+const ErrorDisplay: React.FC<{ message: string }> = ({ message }) => (
+    <div className="flex flex-col items-center justify-center h-full text-center p-6 bg-red-900/30 rounded-lg border border-red-700/50">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-3 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 className="text-xl font-bold text-red-300 mb-2">Generation Failed</h3>
+        <p className="text-red-400 max-w-md">{message}</p>
+    </div>
+);
+
 export const OutputPanel: React.FC<OutputPanelProps> = ({ output, isLoading, error }) => {
   const renderContent = () => {
     if (isLoading) {
       return <LoadingSpinner />;
     }
     if (error) {
-      return <div className="text-red-400 text-center p-4 bg-red-900/50 rounded-lg">{error}</div>;
+      return <ErrorDisplay message={error} />;
     }
     if (output) {
       return (
