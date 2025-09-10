@@ -1,0 +1,5 @@
+{
+  "name": "AI Lyric Generator",
+  "description": "An AI-powered application to generate song lyrics, sound prompts, and image prompts based on user-defined topics, genres, emotions, and structures.",
+  "requestFramePermissions": []
+}
